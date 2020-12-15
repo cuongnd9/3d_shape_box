@@ -3,6 +3,7 @@ package social.pet;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import static java.lang.Math.*;
 
@@ -14,17 +15,13 @@ class RotatingCube extends JPanel {
             {6, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
 
     public RotatingCube() {
-        setPreferredSize(new Dimension(640, 640));
-        setBackground(Color.white);
+        setPreferredSize(new Dimension(600, 600));
+        setBackground(Color.orange);
 
         scale(100);
-//        rotateCube(PI / 4, atan(sqrt(2)));
-//
-//        new Timer(17, (ActionEvent e) -> {
-//            rotateCube(PI / 180, 0);
-//            repaint();
-//        }).start();
+        rotateCube(PI / 4, atan(sqrt(2)));
     }
+
 
     final void scale(double s) {
         for (double[] node : nodes) {
@@ -76,7 +73,6 @@ class RotatingCube extends JPanel {
         Graphics2D g = (Graphics2D) gg;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-
         drawCube(g);
     }
 
@@ -85,11 +81,65 @@ class RotatingCube extends JPanel {
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            RotatingCube cube = new RotatingCube();
+            Timer xTimer = new Timer(17, (ActionEvent e) -> {
+                cube.rotateCube(0, PI / 180);
+                cube.repaint();
+            });
+            Timer yTimer = new Timer(17, (ActionEvent e) -> {
+                cube.rotateCube(PI / 180, 0);
+                cube.repaint();
+            });
+            Timer zTimer = new Timer(34, (ActionEvent e) -> {
+                cube.rotateCube(PI / 90, PI / 90);
+                cube.repaint();
+            });
+
             JFrame f = new JFrame();
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             f.setTitle("Rotating Cube");
             f.setResizable(false);
-            f.add(new RotatingCube(), BorderLayout.CENTER);
+            f.add(cube, BorderLayout.NORTH);
+
+            JPanel btnGroup = new JPanel();
+            JButton xBtn = new JButton("X");
+            xBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    xTimer.start();
+
+                    yTimer.stop();
+                    zTimer.stop();
+                }
+            });
+            JButton yBtn = new JButton("Y");
+            yBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    yTimer.start();
+
+                    xTimer.stop();
+                    zTimer.stop();
+                }
+            });
+            JButton zBtn = new JButton("Z");
+            zBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    zTimer.start();
+
+                    xTimer.stop();
+                    yTimer.stop();
+                }
+            });
+            btnGroup.add(xBtn);
+            btnGroup.add(yBtn);
+            btnGroup.add(zBtn);
+            f.add(btnGroup, BorderLayout.CENTER);
+
+            JLabel info = new JLabel("4pet.social", SwingConstants.CENTER);
+            f.add(info, BorderLayout.SOUTH);
+
             f.pack();
             f.setLocationRelativeTo(null);
             f.setVisible(true);
